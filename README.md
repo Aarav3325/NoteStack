@@ -20,7 +20,7 @@ A simple and efficient notes-taking application built using **Jetpack Compose** 
 ## Installation
 1. Clone the repository:
    ```bash
-   https://github.com/Aarav3325/NotesApp.git
+   git clone https://github.com/Aarav3325/NotesApp.git
    ```
 2. Open the project in **Android Studio**.
 3. Build and run the application on an emulator or device.
