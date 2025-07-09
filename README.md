@@ -1,4 +1,4 @@
-# NotesStack
+# NoteStack
 
 A simple and efficient notes-taking application built using **Jetpack Compose** and **Room Database**, designed for quick and organized note management.
 
