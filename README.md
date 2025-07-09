@@ -29,6 +29,3 @@ A simple and efficient notes-taking application built using **Jetpack Compose** 
 - Cloud Sync with Firebase
 - Reminder Notifications
 - Rich Text Formatting
-
-## License
-This project is open-source and available under the [MIT License](LICENSE).
