@@ -122,7 +122,7 @@ fun newDisplayDelete(note: Note, viewModel: NoteViewModel, onClose: () -> Unit) 
 
         Icon(
             modifier = Modifier
-                .size(32.dp)
+                .size(24.dp)
                 .clickable {
                     viewModel.deleteNote(note)
                     onClose()
@@ -134,7 +134,7 @@ fun newDisplayDelete(note: Note, viewModel: NoteViewModel, onClose: () -> Unit) 
 
         Icon(
             modifier = Modifier
-                .size(32.dp)
+                .size(24.dp)
                 .clickable {
                     onClose()
                 },
