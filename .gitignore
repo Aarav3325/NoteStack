@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/keystore.jks
+/app/release/app-release-open-testing-1.1.aab
