@@ -18,7 +18,7 @@ A simple and efficient notes-taking application built using **Jetpack Compose** 
 - **State Management:** ViewModel, LiveData, StateFlow
 
 <p align="center">
-  <img src="Screenshot_20250330_141914.png" alt="Home Screen" width="25%" />
+  <img src="Screenshot_20250414_174320.png" alt="Home Screen" width="25%" />
   <img src="Screenshot_20250330_142002.png" alt="Add Note Dialog" width="25%" />
   <img src="Screenshot_20250414_174436.png" alt="Search" width="25%" />
 </p>
