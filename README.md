@@ -17,13 +17,13 @@ A simple and efficient notes-taking application built using **Jetpack Compose** 
 - **Database:** Room Database
 - **State Management:** ViewModel, LiveData, StateFlow
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Aarav3325/NotesApp.git
-   ```
-2. Open the project in **Android Studio**.
-3. Build and run the application on an emulator or device.
+<p align="center">
+  <img src="Screenshot_20250330_141914.png" alt="Home Screen" width="25%" />
+  <img src="Screenshot_20250330_142002.png" alt="News Article Screen" width="25%" />
+  <img src="Screenshot_20250414_174436" alt="Standings Screen" width="25%" />
+</p>
+
+<br>
 
 ## Future Improvements
 - Cloud Sync with Firebase
