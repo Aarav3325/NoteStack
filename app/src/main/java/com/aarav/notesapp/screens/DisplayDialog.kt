@@ -16,7 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +37,7 @@ fun DisplayDialog(viewModel: NoteViewModel, showDialog: Boolean, onDismiss: () -
     
     var showAddCategoryDialog by remember { mutableStateOf(false) }
 
-    val categories by viewModel.allCategories.observeAsState(emptyList())
+    val categories by viewModel.allCategories.collectAsStateWithLifecycle()
 
     if (showDialog) {
         if (!showAddCategoryDialog) {

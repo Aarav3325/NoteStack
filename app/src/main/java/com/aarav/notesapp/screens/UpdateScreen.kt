@@ -34,7 +34,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,7 +51,7 @@ import androidx.compose.ui.Alignment
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteID: Int) {
-    val note by viewModel.findNote(noteID).observeAsState()
+    val note by viewModel.findNote(noteID).collectAsStateWithLifecycle(initialValue = null)
 
     var title by remember { mutableStateOf(note?.title ?: "") }
     var description by remember { mutableStateOf(note?.description ?: "") }
@@ -61,7 +61,7 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
     
     var showAddCategoryDialog by remember { mutableStateOf(false) }
 
-    val categories by viewModel.allCategories.observeAsState(emptyList())
+    val categories by viewModel.allCategories.collectAsStateWithLifecycle()
 
     LaunchedEffect(note) {
         note?.let {

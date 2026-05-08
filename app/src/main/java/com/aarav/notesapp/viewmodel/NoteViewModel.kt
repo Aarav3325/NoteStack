@@ -1,11 +1,14 @@
 package com.aarav.notesapp.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import com.aarav.notesapp.repository.CategoryRepository
 import com.aarav.notesapp.repository.NotesRepository
 import com.aarav.notesapp.roomdb.Category
@@ -17,19 +20,23 @@ class NoteViewModel(
     private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
-    val allNotes: LiveData<List<Note>> = repository.allNotes
-    val allCategories: LiveData<List<Category>> = categoryRepository.allCategories
+    val allNotes: StateFlow<List<Note>> = repository.allNotes
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _selectedCategoryId = MutableLiveData<Int?>(null)
-    val selectedCategoryId: LiveData<Int?> = _selectedCategoryId
+    val allCategories: StateFlow<List<Category>> = categoryRepository.allCategories
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val filteredNotes: LiveData<List<Note>> = _selectedCategoryId.switchMap { categoryId ->
+    private val _selectedCategoryId = MutableStateFlow<Int?>(null)
+    val selectedCategoryId: StateFlow<Int?> = _selectedCategoryId
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val filteredNotes: StateFlow<List<Note>> = _selectedCategoryId.flatMapLatest { categoryId ->
         when (categoryId) {
             null -> repository.allNotes
             -1 -> repository.getUncategorizedNotes()
             else -> repository.getNotesByCategory(categoryId)
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun setSelectedCategory(categoryId: Int?) {
         _selectedCategoryId.value = categoryId
@@ -47,7 +54,7 @@ class NoteViewModel(
         }
     }
 
-    fun findNote(noteID: Int): LiveData<Note> {
+    fun findNote(noteID: Int): Flow<Note?> {
         return repository.findNote(noteID)
     }
 
@@ -63,11 +70,12 @@ class NoteViewModel(
         }
     }
 
-    private val searchQuery = MutableLiveData("")
+    private val searchQuery = MutableStateFlow("")
 
-    val notes = searchQuery.switchMap { query ->
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val notes: StateFlow<List<Note>> = searchQuery.flatMapLatest { query ->
         repository.searchNotes(query)
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun setSearchQuery(query: String) {
         searchQuery.value = query
@@ -88,6 +96,32 @@ class NoteViewModel(
     fun updateCategory(categoryId: Int, name: String, color: Int) {
         viewModelScope.launch {
             categoryRepository.updateCategory(categoryId, name, color)
+        }
+    }
+
+    suspend fun getBackupData(): Pair<List<Note>, List<Category>> {
+        return Pair(repository.getAllNotesSync(), categoryRepository.getAllCategoriesSync())
+    }
+
+    fun restoreBackup(notes: List<Note>, categories: List<Category>) {
+        viewModelScope.launch {
+            // Get existing to prevent exact duplicates
+            val existingNotes = repository.getAllNotesSync()
+            val existingTitles = existingNotes.map { it.title }.toSet()
+            
+            // Insert categories first
+            if (categories.isNotEmpty()) {
+                categoryRepository.insertCategories(categories)
+            }
+            
+            // Filter duplicates by title for notes and set ID to 0 for auto-generate
+            val newNotes = notes
+                .filter { it.title !in existingTitles }
+                .map { it.copy(id = 0) } 
+
+            if (newNotes.isNotEmpty()) {
+                repository.insertNotes(newNotes)
+            }
         }
     }
 }

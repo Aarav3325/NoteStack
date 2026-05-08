@@ -35,7 +35,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,10 +51,10 @@ import com.aarav.notesapp.viewmodel.NoteViewModel
 @Composable
 fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
 
-    val notes by viewModel.filteredNotes.observeAsState(emptyList())
-    val categories by viewModel.allCategories.observeAsState(emptyList())
-    val selectedCategoryId by viewModel.selectedCategoryId.observeAsState()
-    val notesSearch by viewModel.notes.observeAsState(emptyList())
+    val notes by viewModel.filteredNotes.collectAsStateWithLifecycle()
+    val categories by viewModel.allCategories.collectAsStateWithLifecycle()
+    val selectedCategoryId by viewModel.selectedCategoryId.collectAsStateWithLifecycle()
+    val notesSearch by viewModel.notes.collectAsStateWithLifecycle()
     var searchText by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 

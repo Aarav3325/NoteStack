@@ -1,14 +1,10 @@
 package com.aarav.notesapp.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +19,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,114 +49,122 @@ import com.aarav.notesapp.viewmodel.NoteViewModel
 @Composable
 fun NoteListItem(note: Note, viewModel: NoteViewModel, modifier: Modifier = Modifier, onClick: () -> Unit) {
 
-    var showDelete by remember { mutableStateOf(false) }
-
     val noteColor = Color(note.color)
     val contentColor = if (noteColor.luminance() > 0.5f) Color(0xFF1C1B1F) else Color.White
 
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = noteColor),
-        border = BorderStroke(
-            0.5.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onLongPress = { showDelete = true },
-                    onTap = { onClick() }
-                )
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { dismissValue ->
+            when (dismissValue) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    viewModel.deleteNote(note)
+                    true
+                }
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    viewModel.updateNotePinStatus(note.id, !note.isPinned)
+                    false // Don't actually dismiss the UI element
+                }
+                else -> false
             }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = note.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = contentColor,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f).padding(end = 8.dp)
-                )
+        }
+    )
 
-                IconButton(
-                    onClick = { viewModel.updateNotePinStatus(note.id, !note.isPinned) },
-                    modifier = Modifier.size(24.dp)
-                ) {
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            val direction = dismissState.dismissDirection
+            val color by animateColorAsState(
+                when (dismissState.targetValue) {
+                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                    SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primaryContainer
+                    else -> Color.Transparent
+                }, label = "swipe_color"
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 4.dp)
+                    .background(color, RoundedCornerShape(16.dp))
+                    .padding(horizontal = 20.dp),
+                contentAlignment = when (direction) {
+                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                    else -> Alignment.Center
+                }
+            ) {
+                if (direction == SwipeToDismissBoxValue.EndToStart) {
                     Icon(
-                        imageVector = if (note.isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                        contentDescription = "Pin note",
-                        tint = contentColor
+                        painter = painterResource(id = R.drawable.delete),
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.size(28.dp)
+                    )
+                } else if (direction == SwipeToDismissBoxValue.StartToEnd) {
+                    Icon(
+                        imageVector = if (note.isPinned) Icons.Outlined.PushPin else Icons.Filled.PushPin,
+                        contentDescription = "Pin/Unpin",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = note.description,
-                style = MaterialTheme.typography.bodySmall,
-                color = contentColor.copy(alpha = 0.75f),
-                maxLines = 8,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-        AnimatedVisibility(
-            visible = showDelete,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            DeleteOverlay(note, viewModel) { showDelete = false }
-        }
-    }
-}
-
-
-@Composable
-private fun DeleteOverlay(note: Note, viewModel: NoteViewModel, onClose: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                color = MaterialTheme.colorScheme.errorContainer,
-                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-            )
-            .padding(vertical = 12.dp, horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+        },
+        modifier = modifier
     ) {
-        Icon(
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(containerColor = noteColor),
+            border = BorderStroke(
+                0.5.dp,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+            ),
             modifier = Modifier
-                .size(22.dp)
-                .clickable {
-                    viewModel.deleteNote(note)
-                    onClose()
-                },
-            painter = painterResource(id = R.drawable.delete),
-            contentDescription = "Delete note",
-            tint = MaterialTheme.colorScheme.onErrorContainer
-        )
+                .fillMaxWidth()
+                .clickable { onClick() }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = note.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = contentColor,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                    )
 
-        Icon(
-            modifier = Modifier
-                .size(22.dp)
-                .clickable { onClose() },
-            painter = painterResource(id = R.drawable.cross),
-            contentDescription = "Cancel",
-            tint = MaterialTheme.colorScheme.onErrorContainer
-        )
+                    if (note.isPinned) {
+                        Icon(
+                            imageVector = Icons.Filled.PushPin,
+                            contentDescription = "Pinned",
+                            tint = contentColor.copy(alpha = 0.8f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = note.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = contentColor.copy(alpha = 0.85f),
+                    maxLines = 8,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }

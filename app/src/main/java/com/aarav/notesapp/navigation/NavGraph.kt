@@ -23,7 +23,7 @@ fun NavGraph(
     NavHost(navController, startDestination = "home") {
         AddHomeScreen(navController, this, viewModel)
         AddUpdateScreen(navController, this, viewModel)
-        AddSettingsScreen(this, themeViewModel, navController)
+        AddSettingsScreen(this, themeViewModel, viewModel, navController)
     }
 }
 
@@ -62,11 +62,13 @@ fun AddUpdateScreen(
 fun AddSettingsScreen(
     navGraphBuilder: NavGraphBuilder,
     themeViewModel: ThemeViewModel,
+    viewModel: NoteViewModel,
     navController: NavController
 ) {
     navGraphBuilder.composable(route = "settings") {
         SettingsScreen(
             themeViewModel = themeViewModel,
+            noteViewModel = viewModel,
             onBack = { navController.popBackStack() }
         )
     }
