@@ -51,7 +51,9 @@ import com.aarav.notesapp.viewmodel.NoteViewModel
 @Composable
 fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
 
-    val notes by viewModel.allNotes.observeAsState(emptyList())
+    val notes by viewModel.filteredNotes.observeAsState(emptyList())
+    val categories by viewModel.allCategories.observeAsState(emptyList())
+    val selectedCategoryId by viewModel.selectedCategoryId.observeAsState()
     val notesSearch by viewModel.notes.observeAsState(emptyList())
     var searchText by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
@@ -141,6 +143,14 @@ fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
                 }
             )
 
+            if (searchText.isEmpty() && categories.isNotEmpty()) {
+                CategoryFilterRow(
+                    categories = categories,
+                    selectedCategoryId = selectedCategoryId,
+                    onCategorySelected = { viewModel.setSelectedCategory(it) }
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             if (searchText.isEmpty()) {
@@ -191,8 +201,7 @@ fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
                     }
                 } else {
                     LazyColumn(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(notesSearch) { note ->

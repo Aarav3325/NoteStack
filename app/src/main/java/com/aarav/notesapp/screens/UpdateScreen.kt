@@ -43,6 +43,8 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.aarav.notesapp.viewmodel.NoteViewModel
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,12 +54,18 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
     var title by remember { mutableStateOf(note?.title ?: "") }
     var description by remember { mutableStateOf(note?.description ?: "") }
     var color by remember { mutableIntStateOf(note?.color ?: NoteColors[0].toArgb()) }
+    var categoryId by remember { mutableStateOf<Int?>(null) }
+    
+    var showAddCategoryDialog by remember { mutableStateOf(false) }
+
+    val categories by viewModel.allCategories.observeAsState(emptyList())
 
     LaunchedEffect(note) {
         note?.let {
             title = it.title
             description = it.description
             color = it.color
+            categoryId = it.categoryId
         }
     }
 
@@ -195,6 +203,22 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
             ) {
                 Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp)) {
                     Text(
+                        text = "Category",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+                    )
+
+                    CategorySelector(
+                        categories = categories,
+                        selectedCategoryId = categoryId,
+                        onCategorySelected = { categoryId = it },
+                        onAddCategory = { showAddCategoryDialog = true }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
                         text = "Note Color",
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -213,7 +237,7 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
             Button(
                 onClick = {
                     if (note != null) {
-                        viewModel.updateNote(noteID, title, description, color)
+                        viewModel.updateNote(noteID, title, description, color, categoryId)
                         navigateToHome()
                     }
                 },
@@ -239,4 +263,10 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+
+    AddCategoryDialog(
+        showDialog = showAddCategoryDialog,
+        onDismiss = { showAddCategoryDialog = false },
+        viewModel = viewModel
+    )
 }

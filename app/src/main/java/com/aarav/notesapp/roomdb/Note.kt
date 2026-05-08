@@ -2,21 +2,36 @@ package com.aarav.notesapp.roomdb
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "notes_table")
+@Entity(
+    tableName = "notes_table",
+    foreignKeys = [
+        ForeignKey(
+            entity = Category::class,
+            parentColumns = ["id"],
+            childColumns = ["category_id"],
+            onDelete = ForeignKey.SET_NULL
+        )
+    ],
+    indices = [Index("category_id")]
+)
 data class Note(
 
     @PrimaryKey(autoGenerate = true)
-    val id : Int = 0,
+    val id: Int = 0,
 
     @ColumnInfo(name = "title")
-    val title : String,
+    val title: String,
+
     @ColumnInfo(name = "description")
-    val description : String,
+    val description: String,
 
     @ColumnInfo(name = "color")
-    val color : Int // Color is stored as ARGB Integer
+    val color: Int,
 
-    // Room doesn't directly supports complex types like Color
+    @ColumnInfo(name = "category_id")
+    val categoryId: Int? = null
 )

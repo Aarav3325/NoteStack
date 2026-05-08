@@ -1,31 +1,38 @@
 package com.aarav.notesapp.repository
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import com.aarav.notesapp.roomdb.Note
 import com.aarav.notesapp.roomdb.NoteDao
 
-class NotesRepository(private val noteDAO : NoteDao) {
-    val allNotes : LiveData<List<Note>> = noteDAO.getNotes()
+class NotesRepository(private val noteDAO: NoteDao) {
 
-    suspend fun insertNote(note : Note){
-        return noteDAO.insertNote(note)
+    val allNotes: LiveData<List<Note>> = noteDAO.getNotes()
+
+    suspend fun insertNote(note: Note) {
+        noteDAO.insertNote(note)
     }
 
-    suspend fun deleteNote(note : Note){
-        return noteDAO.deleteNote(note)
+    suspend fun deleteNote(note: Note) {
+        noteDAO.deleteNote(note)
     }
 
-    fun findNote(noteID : Int) : LiveData<Note>{
-        val findNote : LiveData<Note> = noteDAO.findNote(noteID)
-        return findNote
+    fun findNote(noteID: Int): LiveData<Note> {
+        return noteDAO.findNote(noteID)
     }
 
-    suspend fun updateNote(noteID : Int, title : String, description : String, color : Int){
-        return noteDAO.updateNote(noteID, title, description, color)
+    suspend fun updateNote(noteID: Int, title: String, description: String, color: Int, categoryId: Int?) {
+        noteDAO.updateNote(noteID, title, description, color, categoryId)
     }
 
     fun searchNotes(query: String): LiveData<List<Note>> {
-        return noteDAO.searchNotes("%$query%") // Ensure partial search works
+        return noteDAO.searchNotes("%$query%")
+    }
+
+    fun getNotesByCategory(categoryId: Int): LiveData<List<Note>> {
+        return noteDAO.getNotesByCategory(categoryId)
+    }
+
+    fun getUncategorizedNotes(): LiveData<List<Note>> {
+        return noteDAO.getUncategorizedNotes()
     }
 }

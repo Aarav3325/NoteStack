@@ -22,8 +22,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val database = NotesDB.getInstance(applicationContext)
-        val repository = NotesRepository(database.notesDAO)
-        val viewModelFactory = NoteViewModelFactory(repository)
+        val notesRepository = NotesRepository(database.notesDAO)
+        val categoryRepository = com.aarav.notesapp.repository.CategoryRepository(database.categoryDAO)
+        val viewModelFactory = NoteViewModelFactory(notesRepository, categoryRepository)
         val noteViewModel = ViewModelProvider(this, viewModelFactory)[NoteViewModel::class.java]
 
         val themeViewModel = ViewModelProvider(this)[ThemeViewModel::class.java]
