@@ -1,31 +1,46 @@
 package com.aarav.notesapp.repository
 
-import android.app.Application
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import com.aarav.notesapp.roomdb.Note
 import com.aarav.notesapp.roomdb.NoteDao
 
-class NotesRepository(private val noteDAO : NoteDao) {
-    val allNotes : LiveData<List<Note>> = noteDAO.getNotes()
+class NotesRepository(private val noteDAO: NoteDao) {
 
-    suspend fun insertNote(note : Note){
-        return noteDAO.insertNote(note)
+    val allNotes: Flow<List<Note>> = noteDAO.getNotes()
+
+    suspend fun insertNote(note: Note) {
+        noteDAO.insertNote(note)
     }
 
-    suspend fun deleteNote(note : Note){
-        return noteDAO.deleteNote(note)
+    suspend fun deleteNote(note: Note) {
+        noteDAO.deleteNote(note)
     }
 
-    fun findNote(noteID : Int) : LiveData<Note>{
-        val findNote : LiveData<Note> = noteDAO.findNote(noteID)
-        return findNote
+    fun findNote(noteID: Int): Flow<Note?> {
+        return noteDAO.findNote(noteID)
     }
 
-    suspend fun updateNote(noteID : Int, title : String, description : String, color : Int){
-        return noteDAO.updateNote(noteID, title, description, color)
+    suspend fun updateNote(noteID: Int, title: String, description: String, color: Int, categoryId: Int?, isPinned: Boolean) {
+        noteDAO.updateNote(noteID, title, description, color, categoryId, isPinned)
     }
 
-    fun searchNotes(query: String): LiveData<List<Note>> {
-        return noteDAO.searchNotes("%$query%") // Ensure partial search works
+    suspend fun updateNotePinStatus(noteID: Int, isPinned: Boolean) {
+        noteDAO.updateNotePinStatus(noteID, isPinned)
     }
+
+    fun searchNotes(query: String): Flow<List<Note>> {
+        return noteDAO.searchNotes("%$query%")
+    }
+
+    fun getNotesByCategory(categoryId: Int): Flow<List<Note>> {
+        return noteDAO.getNotesByCategory(categoryId)
+    }
+
+    fun getUncategorizedNotes(): Flow<List<Note>> {
+        return noteDAO.getUncategorizedNotes()
+    }
+
+    suspend fun getAllNotesSync(): List<Note> = noteDAO.getAllNotesSync()
+
+    suspend fun insertNotes(notes: List<Note>) = noteDAO.insertNotes(notes)
 }
