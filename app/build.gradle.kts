@@ -1,4 +1,4 @@
-import org.gradle.api.JavaVersion.VERSION_11
+import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.kotlin.dsl.implementation
 
 plugins {
@@ -6,21 +6,33 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
-    id("kotlin-kapt") apply true
+    kotlin("kapt")
 }
 
 android {
     namespace = "com.aarav.notesapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.aarav.notesapp"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
-        versionName = "1.1"
+        versionName = "1.9.99"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            val keystorePath = System.getenv("KEYSTORE_PATH")
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -30,18 +42,26 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val keystorePath = System.getenv("KEYSTORE_PATH")
+            if (keystorePath != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
-        sourceCompatibility = VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
+    kapt {
+        correctErrorTypes = true
+    }
+
 }
 
 dependencies {
@@ -49,7 +69,7 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
-    val room_version = "2.6.1"
+    val room_version = "2.7.2"
     implementation("androidx.compose.runtime:runtime-livedata:1.7.8")
     implementation("androidx.room:room-runtime:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
