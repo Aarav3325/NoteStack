@@ -12,15 +12,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,6 +50,7 @@ import androidx.navigation.NavController
 import com.aarav.notesapp.roomdb.Note
 import com.aarav.notesapp.viewmodel.NoteViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteID: Int) {
     val note by viewModel.findNote(noteID).observeAsState()
@@ -66,61 +74,79 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
         }
     }
 
-    Card(
-        elevation = CardDefaults.cardElevation(8.dp),
-        border = CardDefaults.outlinedCardBorder(true),
-        colors = CardDefaults.cardColors(containerColor = Color(color)),
-        modifier = Modifier.fillMaxWidth().padding(top = 60.dp, start = 8.dp, end = 8.dp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Update Note")},
+                navigationIcon = {
+                    IconButton(
+                        onClick = navigateToHome
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "back"
+                        )
+                    }
+                }
+            )
+        }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Card(
+            elevation = CardDefaults.cardElevation(8.dp),
+            border = CardDefaults.outlinedCardBorder(true),
+            colors = CardDefaults.cardColors(containerColor = Color(color)),
+            modifier = Modifier.fillMaxWidth().padding(it).padding(horizontal = 12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(text = "Title")
-            OutlinedTextField(
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Black
-                ),
-                value = title,
-                onValueChange = { title = it },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-            )
+                Text(text = "Title")
+                OutlinedTextField(
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Black
+                    ),
+                    value = title,
+                    onValueChange = { title = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "Description")
-            OutlinedTextField(
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Black
-                ),
-                value = description,
-                onValueChange = { description = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                maxLines = 5
-            )
+                Text(text = "Description")
+                OutlinedTextField(
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Black
+                    ),
+                    value = description,
+                    onValueChange = { description = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    maxLines = 5
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Pass selectedColor, but don't update background when changing color
-            Card(
-                shape = RoundedCornerShape(15.dp),
-            ){
+                // Pass selectedColor, but don't update background when changing color
+                Card(
+                    shape = RoundedCornerShape(15.dp),
+                ){
                     MyColorPicker(selectedColor = Color(color), onColorSelected = { color = it.toArgb() })
                 }
 
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    if (note != null) {
-                        viewModel.updateNote(noteID, title, description, color)
-                        navigateToHome()
+                Button(
+                    onClick = {
+                        if (note != null) {
+                            viewModel.updateNote(noteID, title, description, color)
+                            navigateToHome()
+                        }
                     }
+                ) {
+                    Text(text = "Update Note")
                 }
-            ) {
-                Text(text = "Update Note")
             }
         }
     }

@@ -46,8 +46,6 @@ fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
 
 
 
-
-
     Column(modifier = Modifier.padding(top = 45.dp)) {
         TextField(
             value = searchText,
@@ -96,8 +94,8 @@ fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
                     Text(
                         "OOPS! No notes found",
                         fontSize = 18.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
+                        color = Color.Black,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             } else {
