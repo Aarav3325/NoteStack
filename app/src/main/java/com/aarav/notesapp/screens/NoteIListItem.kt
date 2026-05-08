@@ -24,6 +24,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,7 +48,7 @@ import com.aarav.notesapp.viewmodel.NoteViewModel
 
 
 @Composable
-fun NoteListItem(note: Note, viewModel: NoteViewModel, onClick: () -> Unit) {
+fun NoteListItem(note: Note, viewModel: NoteViewModel, modifier: Modifier = Modifier, onClick: () -> Unit) {
 
     var showDelete by remember { mutableStateOf(false) }
 
@@ -59,7 +63,7 @@ fun NoteListItem(note: Note, viewModel: NoteViewModel, onClick: () -> Unit) {
             0.5.dp,
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -73,14 +77,32 @@ fun NoteListItem(note: Note, viewModel: NoteViewModel, onClick: () -> Unit) {
                 .fillMaxWidth()
                 .padding(14.dp)
         ) {
-            Text(
-                text = note.title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = contentColor,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = note.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = contentColor,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                )
+
+                IconButton(
+                    onClick = { viewModel.updateNotePinStatus(note.id, !note.isPinned) },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = if (note.isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                        contentDescription = "Pin note",
+                        tint = contentColor
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(6.dp))
 

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Note::class, Category::class], version = 2)
+@Database(entities = [Note::class, Category::class], version = 3)
 abstract class NotesDB : RoomDatabase() {
 
     abstract val notesDAO: NoteDao
@@ -55,6 +55,12 @@ abstract class NotesDB : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `notes_table` ADD COLUMN `is_pinned` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getInstance(context: Context): NotesDB {
             synchronized(this) {
                 var instance = INSTANCE
@@ -65,7 +71,7 @@ abstract class NotesDB : RoomDatabase() {
                         NotesDB::class.java,
                         "motes_db"
                     )
-                        .addMigrations(MIGRATION_1_2)
+                        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                         .build()
                 }
 

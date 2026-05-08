@@ -20,8 +20,12 @@ class NotesRepository(private val noteDAO: NoteDao) {
         return noteDAO.findNote(noteID)
     }
 
-    suspend fun updateNote(noteID: Int, title: String, description: String, color: Int, categoryId: Int?) {
-        noteDAO.updateNote(noteID, title, description, color, categoryId)
+    suspend fun updateNote(noteID: Int, title: String, description: String, color: Int, categoryId: Int?, isPinned: Boolean) {
+        noteDAO.updateNote(noteID, title, description, color, categoryId, isPinned)
+    }
+
+    suspend fun updateNotePinStatus(noteID: Int, isPinned: Boolean) {
+        noteDAO.updateNotePinStatus(noteID, isPinned)
     }
 
     fun searchNotes(query: String): LiveData<List<Note>> {

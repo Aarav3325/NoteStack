@@ -128,7 +128,7 @@ fun DisplayDialog(viewModel: NoteViewModel, showDialog: Boolean, onDismiss: () -
                 confirmButton = {
                     Button(
                         onClick = {
-                            val note = Note(0, title, description, selectedColor.toArgb(), selectedCategoryId)
+                            val note = Note(0, title, description, selectedColor.toArgb(), selectedCategoryId, false)
                             viewModel.insertNote(note)
                             title = ""
                             description = ""

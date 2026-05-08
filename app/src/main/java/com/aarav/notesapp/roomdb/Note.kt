@@ -33,5 +33,8 @@ data class Note(
     val color: Int,
 
     @ColumnInfo(name = "category_id")
-    val categoryId: Int? = null
+    val categoryId: Int? = null,
+
+    @ColumnInfo(name = "is_pinned", defaultValue = "0")
+    val isPinned: Boolean = false
 )

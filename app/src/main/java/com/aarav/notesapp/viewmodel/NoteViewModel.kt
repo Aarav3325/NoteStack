@@ -51,9 +51,15 @@ class NoteViewModel(
         return repository.findNote(noteID)
     }
 
-    fun updateNote(noteID: Int, title: String, description: String, color: Int, categoryId: Int?) {
+    fun updateNote(noteID: Int, title: String, description: String, color: Int, categoryId: Int?, isPinned: Boolean) {
         viewModelScope.launch {
-            repository.updateNote(noteID, title, description, color, categoryId)
+            repository.updateNote(noteID, title, description, color, categoryId, isPinned)
+        }
+    }
+
+    fun updateNotePinStatus(noteID: Int, isPinned: Boolean) {
+        viewModelScope.launch {
+            repository.updateNotePinStatus(noteID, isPinned)
         }
     }
 

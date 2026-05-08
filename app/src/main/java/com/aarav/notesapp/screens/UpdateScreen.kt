@@ -14,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -55,6 +57,7 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
     var description by remember { mutableStateOf(note?.description ?: "") }
     var color by remember { mutableIntStateOf(note?.color ?: NoteColors[0].toArgb()) }
     var categoryId by remember { mutableStateOf<Int?>(null) }
+    var isPinned by remember { mutableStateOf(false) }
     
     var showAddCategoryDialog by remember { mutableStateOf(false) }
 
@@ -66,6 +69,7 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
             description = it.description
             color = it.color
             categoryId = it.categoryId
+            isPinned = it.isPinned
         }
     }
 
@@ -89,6 +93,15 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { isPinned = !isPinned }) {
+                        Icon(
+                            imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                            contentDescription = "Pin note",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -237,7 +250,7 @@ fun UpdateNoteScreen(navigateToHome: () -> Unit, viewModel: NoteViewModel, noteI
             Button(
                 onClick = {
                     if (note != null) {
-                        viewModel.updateNote(noteID, title, description, color, categoryId)
+                        viewModel.updateNote(noteID, title, description, color, categoryId, isPinned)
                         navigateToHome()
                     }
                 },

@@ -171,8 +171,12 @@ fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalItemSpacing = 8.dp
                     ) {
-                        items(notes) { note ->
-                            NoteListItem(note = note, viewModel) {
+                        items(notes, key = { it.id }) { note ->
+                            NoteListItem(
+                                note = note,
+                                viewModel = viewModel,
+                                modifier = Modifier.animateItem()
+                            ) {
                                 navController.navigate("update/${note.id}")
                             }
                         }
@@ -204,8 +208,12 @@ fun DisplayNotesList(navController: NavController, viewModel: NoteViewModel) {
                         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(notesSearch) { note ->
-                            NoteListItem(note = note, viewModel) {
+                        items(notesSearch, key = { it.id }) { note ->
+                            NoteListItem(
+                                note = note,
+                                viewModel = viewModel,
+                                modifier = Modifier.animateItem()
+                            ) {
                                 navController.navigate("update/${note.id}")
                             }
                         }
