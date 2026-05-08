@@ -48,7 +48,7 @@ platform :android do
 
   desc "Build and deploy to Play Store - Production"
   lane :deploy_production do
-    rollout_percent = ENV["ROLLOUT_PERCENT"] ? ENV["ROLLOUT_PERCENT"].to_f : 1.0
+    rollout_percent = ENV["ROLLOUT_PERCENT"] ? ENV["ROLLOUT_PERCENT"].to_s : "1.0"
 
     upload_to_play_store(
       aab: "app/build/outputs/bundle/release/app-release.aab",
